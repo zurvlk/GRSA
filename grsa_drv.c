@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
         else j++;
     }
 
-    exit (EXIT_SUCCESS);
+    // exit (EXIT_SUCCESS);
     printf("----------------------------------------------\n");
     printf("input_file: %s\n", argv[1]);
     printf("output_file: %s\n", output_file);
@@ -213,20 +213,21 @@ int main(int argc, char *argv[]) {
     start = clock();
     do {
         prev_energy = energy(&Ge, label, I, T);
-        for(i = 0; i < num_of_moves; i++) {
-            alpha = i;
-            beta = alpha + range_size - 1;
+        for(i = 1; i <= total_ss_count; i++) {
             if (last_move == i) {
                 flag = 1;
                 break;
             }
-            swap_node_size = make_label_index(&Ge, label, label_index, alpha, beta);
-            if (swap_node_size  < 2) continue;
+
 
 #if _OUTPUT_T_
             fprintf(fp, "\n-------------------------------------\n");
-            fprintf(fp, "alpha: %d beta: %d\n", alpha, beta);
-
+            fprintf(fp, " submodular subsets: ");
+            for (j = 1; j <= ls[i][0]; i++) {
+                printf("%d ", ls[i][j]);
+            }
+            printf("\n");
+            
             for (j = 1; j <= Ge.n - 2; j++) {
                 // printf("t[%d] : %d\n", i, t[i]);
                 fprintf(fp, "%d ", isin_array(label_index, j, swap_node_size) ? 1 : 0);

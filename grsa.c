@@ -54,17 +54,6 @@ void cpyarray(int *terget, int *source, int size) {
     }
 }
 
-
-double phi(int i, int j, int *ls, double T) {
-    double p = 0;
-    if(j > i) return 0;
-    if(1 < j && j <= i) {
-        p = theta(ls[i] - ls[j - 1], T) - theta(ls[i] - ls[j], T) - theta(ls[i - 1] - ls[j - 1], T) + theta(ls[i - 1] - ls[j], T);
-        if(i == j) p *= 0.5;
-    }
-    return p;
-}
-
 double dabs(double a, double b) {
     return a - b > 0 ? a - b : b - a;
 }
@@ -164,6 +153,17 @@ int make_label_index(Graph *G, int *label, int *label_index, int alpha, int beta
     return arraysize;
 }
 
+double phi (int i, int j, int *ls, double T) {
+    double p = 0;
+    if(j > i) return 0;
+    if(1 < j && j <= i) {
+        p = theta(ls[i] - ls[j - 1], T) - theta(ls[i] - ls[j], T) - theta(ls[i - 1] - ls[j - 1], T) + theta(ls[i - 1] - ls[j], T);
+        if(i == j) p *= 0.5;
+    }
+    return p;
+}
+
+
 // set_edge for rangeswap
 void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size, int *label, int *label_index, int size, int *I, double T) {
     int i, j, k, l, node;
@@ -243,7 +243,7 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size,
         for (j = 1; j <= ls[0]; j++) {
             head = head + grids_node;
             setEdge(G, edge_count, head, tail, 0);
-            if(isin_array(label_index, i, size)) {
+            if(list_isin_array(ls, label[i])) {
                 G->capa[edge_count] = INF;
             }
             edge_count++;
@@ -257,14 +257,14 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size,
         for (j = 1; j < width; j++) {
             t_base =  (i - 1) * width + j;
             h_base =  t_base + 1;
-            for (k = 0; k < range_size; k++) {
+            for (k = 1; k < ls[0]; k++) {
                 tail = t_base + k * grids_node;
-                for (l = 0; l < range_size; l++) {
+                for (l = 1; l < ls[0]; l++) {
                     head = h_base + l * grids_node;
                     setEdge(G, edge_count, tail, head, 0);
-                    if(isin_array(label_index, t_base, size) && isin_array(label_index, h_base, size)) {
+                    if(list_isin_array(ls, label[t_base]) && list_isin_array(ls, label[h_base])) {
                         // head, tail in label_index
-                        G->capa[edge_count] = e_cost(k + 1, l + 1, T);
+                        G->capa[edge_count] = phi(k + 1, l + 1, ls, T);
                     }
                     edge_count++;
                 }
@@ -277,13 +277,13 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size,
         for (j = 1; j < width + 1; j++) {
             t_base = (i - 1) * width + j;
             h_base = t_base + width;
-            for (k = 0; k < range_size; k++) {
+            for (k = 1; k < ls[0]; k++) {
                 tail = t_base + k * grids_node;
-                for (l = 0; l < range_size; l++) {
+                for (l = 1; l < ls[0]; l++) {
                     head = h_base + l * grids_node;
                     setEdge(G, edge_count, tail, head, 0);
-                    if(isin_array(label_index, t_base, size) && isin_array(label_index, h_base, size)) {
-                        G->capa[edge_count] = e_cost(k + 1, l + 1, T);
+                    if(list_isin_array(ls, label[t_base]) && list_isin_array(ls, label[h_base])) {
+                        G->capa[edge_count] = phi(k + 1, l + 1, ls, T);
                         // head, tail in label_index
                     }
                     edge_count++;
@@ -301,13 +301,13 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size,
         for (j = 1; j < width; j++) {
             t_base =  (i - 1) * width + j;
             h_base =  t_base + 1;
-            for (k = 0; k < range_size; k++) {
+            for (k = 1; k < ls[0]; k++) {
                 tail = t_base + k * grids_node;
-                for (l = 0; l < range_size; l++) {
+                for (l = 1; l < ls[0]; l++) {
                     head = h_base + l * grids_node;
                     setEdge(G, edge_count, head, tail, 0);
-                    if(isin_array(label_index, t_base, size) && isin_array(label_index, h_base, size)) {
-                        G->capa[edge_count] = e_cost(k + 1, l + 1, T);
+                    if(list_isin_array(ls, label[t_base]) && list_isin_array(ls, label[h_base])) {
+                        G->capa[edge_count] = phi(k + 1, l + 1, ls, T);
                     }
                     edge_count++;
                 }
@@ -320,38 +320,18 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size,
         for (j = 1; j < width + 1; j++) {
             t_base = (i - 1) * width + j;
             h_base = t_base + width;
-            for (k = 0; k < range_size; k++) {
+            for (k = 1; k < ls[0]; k++) {
                 tail = t_base + k * grids_node;
-                for (l = 0; l < range_size; l++) {
+                for (l = 1; l < ls[0]; l++) {
                     head = h_base + l * grids_node;
                     setEdge(G, edge_count, head, tail, 0);
-                    if(isin_array(label_index, t_base, size) && isin_array(label_index, h_base, size)) {
-                        G->capa[edge_count] = e_cost(k + 1, l + 1, T);
+                    if(list_isin_array(ls, label[t_base]) && list_isin_array(ls, label[h_base])) {
+                        G->capa[edge_count] = phi(k + 1, l + 1, ls, T);
                     }
                     edge_count++;
                 }
             }
         }
-    }
-
-
-    // each node 2 source 
-    for (i = 1; i <= grids_node * range_size; i++) {
-        setEdge(G, edge_count, i, source, 0);
-        node = i % grids_node == 0 ? grids_node : i % grids_node;
-        if(isin_array(label_index, node, size)) {
-            G->capa[edge_count] = e_cost(0, (i - 1) / grids_node + 1, T);
-        }
-        edge_count++;
-    }
-     // each node 2 sink
-    for (i = 1; i <= grids_node * range_size; i++) {
-        setEdge(G, edge_count, sink, i, 0);
-        node = i % grids_node == 0 ? grids_node : i % grids_node;
-        if(isin_array(label_index, node, size)) {
-            G->capa[edge_count] = e_cost((i - 1) / grids_node + 1, sink_label, T);
-        }
-        edge_count++;
     }
 
 
