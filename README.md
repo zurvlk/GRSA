@@ -1,7 +1,7 @@
-# RangeSwap
-Ishikawaのグラフ+RangeSwapMoveを用いた画像処理プログラム 
+# GRSA
+一般化範囲交換を用いた画像処理プログラム 
 ### 仕様
-Ishikawaのアルゴリズムを基にエネルギーの最小化を試みます.  
+一般化範囲交換アルゴリズムを用いてエネルギーの最小化を試みます.  
 - D<sub>p</sub>(f<sub>p</sub>) = |I<sub>p</sub> - f<sub>p</sub>|
 - V<sub>pq</sub>(f<sub>p</sub>, f<sub>q</sub>) = |f<sub>p</sub> - f<sub>q</sub>|
 #### 記号とか
@@ -9,6 +9,7 @@ Ishikawaのアルゴリズムを基にエネルギーの最小化を試みます
 - i = 0: source  
 - i = k + 1: sink  
 #### 各枝の重み設定
+そのうちちゃんと書く
 - p<sub>i</sub>とq<sub>j</sub>を結ぶ枝  
     - w(e<sup>pq</sup><sub>ij</sub>) =(| i − j + 1 | − 2 | i − j | + | i − j − 1 |) / 2.0  
 - p<sub>i</sub>とp<sub>i+1</sub>を結ぶ枝  
