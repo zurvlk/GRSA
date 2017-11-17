@@ -2,7 +2,7 @@
 #include "bmp.h"
 
 int function;
-
+int nc2(int n);
 double theta(double n, double T);
 double p(int *label, int height, int width);
 double energy(Graph *G, int *label, int *I, double T);

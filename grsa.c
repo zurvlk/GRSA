@@ -7,6 +7,10 @@
 
 #define INF DBL_MAX
 
+int nc2(int n) {
+    return n * (n - 1) / 2;
+}
+
 int isin_array(int *array, int target, int size) {
     for (int i = 1; i <= size; i++) {
         if(array[i] > target) break;
@@ -217,8 +221,8 @@ int nnp_4_grsa(int i, int height, int width, int *ls, int *label, double T) {
 void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int *label, int *I, double T) {
     int i, j, k, l, node;
     int tail, head, t_base, h_base, grids_node, source, sink, edge_count, current_edge;
-    int s2i_begin, i2t_begin, depth_begin, range_size, sink_label;
-    double *min, r_total;
+    int s2i_begin, i2t_begin, depth_begin, sink_label;
+    double *min;
 
 
     if (((min = (double *) malloc(sizeof(double) * G->n))) == NULL) {
@@ -232,9 +236,9 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int *label, int
     grids_node = height * width;
 
     for (i = 1; i < G->n; i++) G->capa[i] = 0;
-    source = grids_node * range_size + 1;
+    source = grids_node * ls[0] + 1;
     sink = source + 1;
-    sink_label = range_size + 1;
+    sink_label = ls[0] + 1;
 
     setSource(G, source);
     setSink(G, sink);
@@ -250,13 +254,13 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int *label, int
         if (min[i] > G->capa[edge_count]) min[i] = G->capa[edge_count];
         edge_count++;
     }
-
+    
     // depth
     depth_begin = edge_count;
     for (i = 1; i <= grids_node; i++) {
         tail = i;
         head = i;
-        for (j = 1; j <= ls[0]; j++) {
+        for (j = 1; j < ls[0]; j++) {
             head = head + grids_node;
             setEdge(G, edge_count, tail, head, 0);
             if(list_isin_array(ls , label[i])) {
@@ -268,12 +272,11 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int *label, int
             tail = head;
         }
     }
-
     // ik->sink
     i2t_begin = edge_count;
     // rk = r(beta , label_size, grids_edge);
     for (i = 1; i <= grids_node; i++) {
-        setEdge(G, edge_count, i + grids_node * range_size, sink, 0);
+        setEdge(G, edge_count, i + grids_node * (ls[0] - 1), sink, 0);
         node = i % grids_node == 0 ? grids_node : i % grids_node;
         if(list_isin_array(ls , label[i])) {
             G->capa[edge_count] = data(I[i], ls[ls[0]]) + nnp_4_grsa(ls[ls[0]], height, width, ls, label, T);
@@ -289,7 +292,7 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int *label, int
     for (i = 1; i <= grids_node; i++) {
         tail = i;
         head = i;
-        for (j = 1; j <= ls[0]; j++) {
+        for (j = 1; j < ls[0]; j++) {
             head = head + grids_node;
             setEdge(G, edge_count, head, tail, 0);
             if(list_isin_array(ls, label[i])) {
@@ -299,6 +302,8 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int *label, int
             tail = head;
         }
     }
+
+    
 
     // new codes
     // horizonal
@@ -393,14 +398,15 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int *label, int
     }
     current_edge = depth_begin;
     for (i = 1; i <= grids_node; i++) {
-        for (j = 1; j < range_size; j++) {
+        for (j = 1; j < ls[0]; j++) {
             G->capa[current_edge] -=min[i];
             current_edge++;
         }
     }
 
     free(min);
-    // printf("total edge : %d\n", edge_count - 1);
+    
+    printf("total edge : %d\n", edge_count - 1);
     return;
 }
 
