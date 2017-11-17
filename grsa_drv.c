@@ -16,7 +16,7 @@
 
 
 int main(int argc, char *argv[]) {
-    int i, j, k, l, node, edge, grids_node, flag, alpha, beta, swap_node_size;
+    int i, j, k, l, node, edge, grids_node, flag;
     int scale, label_max, grids_edge, count, last_move, num_of_moves, ci;
     int *I, *t, *label, *newlabel, *label_index;
     // I->入力画像の輝度, t->2値変数, label->ラベル付け
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
     printf("output_file: %s\n", output_file);
     printf("label_size: %d\n", label_size);
     printf("range_size: %d\n", range_size);
-    if(h(2, 2 * 2) > 2) printf("Vpq(fp, fq) = (fp - fq)^2\n");
+    if(theta(2, 2 * 2) > 2) printf("Vpq(fp, fq) = (fp - fq)^2\n");
     else printf("Vpq(fp, fq) = |fp - fq|\n");
 
     ReadBmp(argv[1], &image);
@@ -249,7 +249,8 @@ int main(int argc, char *argv[]) {
             edge =  2 * ((range_size - 1) * ((range_size - 1) * grids_edge + 2 * grids_node) + grids_node * ((range_size - 1) - 1));
             
             newGraph(&G, node, edge);
-            set_edge(&G, image.height, image.width, alpha, beta, label_size, label, label_index, swap_node_size, I, T);
+            // set_edge(&G, image.height, image.width, alpha, beta, label_size, label, label_index, swap_node_size, I, T);
+            set_edge_for_grsa(&G, image.height, image.width, ls[i], label, I, T);
             initAdjList(&G);
             
             if ((f = (double *) malloc(sizeof(double) * (G.m + 1))) == NULL) {
@@ -267,31 +268,29 @@ int main(int argc, char *argv[]) {
             boykov_kolmogorov(G, f, t);
             ci++;
             for (j = 1; j <= Ge.n - 2; j++) {
-                if (isin_array(label_index, j, Ge.n - 2)) {
+                if (list_isin_array(ls[i], label[j])) {
                     k = j;
                     count = 0;
-                    while (t[k] == 1 && k <= (range_size - 1) * grids_node) {
+                    while (t[k] == 1 && k <= ls[i][0] * grids_node) {
                         k += grids_node;
                         count++;
                     }
-                    newlabel[j] = count + alpha;
+                    newlabel[j] = ls[i][count];
                 } else newlabel[j] = label[j];
             }
 
-            if (cmparray(newlabel, label, grids_node)) {
-                
-                if (energy(&Ge, newlabel, I, T) < energy(&Ge, label, I, T)) {
-                    last_move = alpha;
-                    cpyarray(label, newlabel, grids_node);
+            if (energy(&Ge, newlabel, I, T) < energy(&Ge, label, I, T)) {
+                last_move = i;
+                cpyarray(label, newlabel, grids_node);
+
 #if _SHOW_EACH_ENERGY_
                     printf("alpha: %d beta: %d\n", alpha, beta);
                     printf("Energy : %lf\n", energy(&Ge, label, I, T));
 #endif
-                } else {
-                    errlog = 1;
-                    // fprintf(stderr, "Error newEnergy > prevEnergy\n");
-                    // exit (EXIT_FAILURE);
-                }
+
+            } else if (energy(&Ge, newlabel, I, T) > energy(&Ge, label, I, T)) {
+                errlog = 1;
+                printf("error!\n");
             }
 
 #if _OUTPUT_T_

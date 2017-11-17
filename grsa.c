@@ -95,6 +95,8 @@ double e_cost(int i, int j, double T) {
     return cost;
 }
 
+
+
 //枝を作る関数makeedge(グラフ,高さ,幅)
 void set_single_edges(Graph *G, int height, int width) {
     int i, j, edge_count;
@@ -163,9 +165,56 @@ double phi (int i, int j, int *ls, double T) {
     return p;
 }
 
+double nn(int i, int label, int *ls, double T) {
+    double p = 0;
+    p = pairwise(ls[i], label, T);
+    return p;
+}
+
+int nnp_4_grsa(int i, int height, int width, int *ls, int *label, double T) {
+    int grids_node = height * width;
+
+    double nnp_total = 0;
+
+
+    if (i > width) {
+        // 画素が一番上の行に存在しないとき(iの上が空白でないとき)
+        if (!list_isin_array(ls, label[i - width])){
+            // iの上の点がLs内に含まれない
+            nnp_total += pairwise(ls[i], label[i - width], T) ;
+        }
+    }
+    
+
+    if (i <= grids_node - width) {
+        // 画素が一番下の行に存在しないとき(iの下が空白でないとき)
+        if (!list_isin_array(ls, label[i + width])){
+            // iの下の点がLs内に含まれない
+            nnp_total += pairwise(ls[i], label[i + width], T) ;
+        }
+    }
+
+    if ((i % width) != 1) {
+        // 画素が一番左の列に存在しないとき(iの左が空白でないとき)
+        if (!list_isin_array(ls, label[i - 1])){
+            // iの左の点がLs内に含まれない
+            nnp_total += pairwise(ls[i], label[i - 1], T) ;
+        }
+    }
+
+    if ((i % width) != 0) {
+        // 画素が一番右の列に存在しないとき(iの右が空白でないとき)
+        if (!list_isin_array(ls, label[i + 1])){
+            // iの右の点がLs内に含まれない
+            nnp_total += pairwise(ls[i], label[i + 1], T) ;
+        }
+    }
+    return nnp_total;
+}
+
 
 // set_edge for rangeswap
-void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size, int *label, int *label_index, int size, int *I, double T) {
+void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int *label, int *I, double T) {
     int i, j, k, l, node;
     int tail, head, t_base, h_base, grids_node, source, sink, edge_count, current_edge;
     int s2i_begin, i2t_begin, depth_begin, range_size, sink_label;
@@ -211,7 +260,7 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size,
             head = head + grids_node;
             setEdge(G, edge_count, tail, head, 0);
             if(list_isin_array(ls , label[i])) {
-                G->capa[edge_count] = data(I[i],ls[j]);
+                G->capa[edge_count] = data(I[i],ls[j]) + nnp_4_grsa(i, height, width, ls, label, T);
             }
 
             if (min[i] > G->capa[edge_count]) min[i] = G->capa[edge_count];
@@ -227,7 +276,7 @@ void set_edge_for_grsa(Graph *G, int height, int width, int *ls, int label_size,
         setEdge(G, edge_count, i + grids_node * range_size, sink, 0);
         node = i % grids_node == 0 ? grids_node : i % grids_node;
         if(list_isin_array(ls , label[i])) {
-            G->capa[edge_count] = data(I[i], ls[ls[0]]);
+            G->capa[edge_count] = data(I[i], ls[ls[0]]) + nnp_4_grsa(ls[ls[0]], height, width, ls, label, T);
         }
 
         if (min[i] > G->capa[edge_count]) min[i] = G->capa[edge_count];
