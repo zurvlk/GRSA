@@ -1,0 +1,156 @@
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_16_4.bmp
+label_size: 16
+range_size: 4
+T: 16.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 57180
+Energy (after): 11553
+Italation: 383
+Run time[10.03]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_16_8.bmp
+label_size: 16
+range_size: 8
+T: 64.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 67642
+Energy (after): 11547
+Italation: 198
+Run time[7.77]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_16_16.bmp
+label_size: 16
+range_size: 16
+T: 256.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 68379
+Energy (after): 11521
+Italation: 1
+Run time[2.85]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_32_4.bmp
+label_size: 32
+range_size: 4
+T: 16.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 119970
+Energy (after): 24802
+Italation: 4910
+Run time[105.97]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_32_8.bmp
+label_size: 32
+range_size: 8
+T: 64.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 221241
+Energy (after): 24292
+Italation: 2300
+Run time[58.79]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_32_16.bmp
+label_size: 32
+range_size: 16
+T: 256.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 262240
+Energy (after): 24252
+Italation: 1548
+Run time[58.07]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_32_32.bmp
+label_size: 32
+range_size: 32
+T: 1024.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 265261
+Energy (after): 24196
+Italation: 1
+Run time[11.30]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_64_4.bmp
+label_size: 64
+range_size: 4
+T: 16.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 176432
+Energy (after): 50785
+Italation: 19117
+Run time[397.00]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_64_8.bmp
+label_size: 64
+range_size: 8
+T: 64.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 479880
+Energy (after): 51752
+Italation: 15961
+Run time[351.94]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_64_16.bmp
+label_size: 64
+range_size: 16
+T: 256.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 884964
+Energy (after): 51560
+Italation: 10747
+Run time[275.08]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_64_32.bmp
+label_size: 64
+range_size: 32
+T: 1024.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 1048960
+Energy (after): 51561
+Italation: 6157
+Run time[270.14]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_64_64.bmp
+label_size: 64
+range_size: 64
+T: 4096.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 1061044
+Energy (after): 51448
+Italation: 1
+Run time[62.80]
+----------------------------------------------
