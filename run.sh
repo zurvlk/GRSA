@@ -6,15 +6,15 @@ result=log/`date +%Y%m%d_%H-%M-%S`.log
 input_file="input/barbara_noise32.bmp"
 for func in 1
 do
-    for label_size in 16 32
+    for label_size in 4 16 32 64
     do
-        for range_size in 8 16 32
+        for range_size in 8 16 32 64
         do
             if [ $range_size -le $label_size ]
             then
                 # range_size <= label_size
                 job_start=`date +%s`
-                ./rs ${input_file} output/output_${func}_${label_size}_${range_size}.bmp $label_size $range_size $func | tee temp.txt >>  ${result}
+                ./grsa ${input_file} output/output_${func}_${label_size}_${range_size}.bmp $label_size $range_size $func | tee temp.txt >>  ${result}
                 job_end=`date +%s`
                 time=$((job_end - job_start));
                 echo "@zurvlk 処理${count}が完了しましたっ!" > notification.txt

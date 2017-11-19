@@ -10,18 +10,23 @@
 #include <float.h>
 #define INF DBL_MAX
 
+/*
 
-#define _OUTPUT_T_ 0     // BK-maxflow後のtの状態をファイルに出力 0:出力しない 1:出力する
+*/
+
+
+#define _OUTPUT_T_ 1     // BK-maxflow後のtの状態をファイルに出力 0:出力しない 1:出力する
 #define _OUTPUT_INFO_ 0     // デバッグ情報出力 0:出力しない 1:出力する
 #define _OUTPUT_GRAPH_ 0    // グラフ情報出力  0:出力しない 1:出力する
 #define _OUTPUT_PROGRESS_ 0 // 処理過程ファイル出力 0:出力しない 1:出力する
 #define _RUN_FIRST_ONLY_ 0 // 1度目の移動で終了(デバッグ用)
 #define _SHOW_EACH_ENERGY_ 0 // 各移動時にエネルギー表示
+#define _OUTPUT_SUBMODULAR_SUBSETS_ 0
 
 
 int main(int argc, char *argv[]) {
     int i, j, k, l, node, edge, grids_node, flag, size;
-    int scale, label_max, grids_edge, count, last_move, num_of_moves, ci;
+    int scale, label_max, grids_edge, count, last_move, ci;
     int *I, *t, *label, *newlabel, *label_index;
     // I->入力画像の輝度, t->2値変数, label->ラベル付け
     int label_size = 16;
@@ -90,121 +95,133 @@ int main(int argc, char *argv[]) {
     // generate submodular subsets
     // ls[i][0] == 劣モジュラ部分集合iの要素数
     // ls[i][1] ~ ls[i][range_size] 劣モジュラ部分集合
-    large_array = 0;
-    if (range_size > 2) {
-        i = 0;
-        do {
-            i += range_size - 1;
-            large_array++;
-        } while (i + range_size < label_size);
-        large_array++;
-        size = label_max - i + 1;
-        total_ss_count = large_array + nc2(label_size) - (large_array - 1) * nc2(range_size) - nc2(size);
-    } else total_ss_count = nc2(label_size);
-    
-    
-    // large_array = label_size / (range_size - 1) - 1;
-    
-    
-    printf("size : %d large_array %d\n", size, large_array);
-    if ((ls = (int **)malloc(sizeof(int*) * (total_ss_count + 1))) == NULL) {
-        fprintf(stderr, "Error!:malloc[main()->ls]\n");
-        exit(EXIT_FAILURE);
-    }
 
-    if (range_size > 2) {
-        for (i = 1; i < large_array; i++) {
-            if ((ls[i] = (int *)malloc(sizeof(int) * (range_size + 1))) == NULL) {
-                fprintf(stderr, "Error!:malloc[main()->ls]\n");
-                exit(EXIT_FAILURE);
-            }
-            ls[i][0] = range_size;
-            if(i != 1) ls[i][1] = ls[i - 1][range_size];
-            else ls[i][1] = 0;
-            // printf("%d ", ls[i][1]);
-            for (j = 2; j <= range_size; j++) {
-                ls[i][j] = ls[i][j - 1] + 1;
-                k = ls[i][j];
-                // ls[i][j] = (i - 1) * range_size + j;
-                // printf("%d ", ls[i][j]);
-            }
-            // printf("\n");
-        }
-    
-        if ((ls[large_array] = (int *)malloc(sizeof(int) * size)) == NULL) {
+    // total_ss_count = gen_submodular_subsets(label_size, range_size, ls);
+    if (label_size != range_size) {
+        large_array = 0;
+        if (range_size > 2) {
+            i = 0;
+            do {
+                i += range_size - 1;
+                large_array++;
+            } while (i + range_size < label_size);
+            large_array++;
+            size = label_max - i + 1;
+            total_ss_count = large_array + nc2(label_size) - (large_array - 1) * nc2(range_size) - nc2(size);
+        } else total_ss_count = nc2(label_size);
+
+        // printf("size : %d large_array %d\n", size, large_array);
+        if ((ls = (int **)malloc(sizeof(int*) * (total_ss_count + 1))) == NULL) {
             fprintf(stderr, "Error!:malloc[main()->ls]\n");
             exit(EXIT_FAILURE);
         }
-        ls[large_array][0] = size;
-        ls[large_array][1] = k;
-        // printf("%d ", ls[large_array][1]);
-        for (j = 2; ls[large_array][j - 1] + 1 <= label_max; j++) {
-                ls[large_array][j] = ls[large_array][j - 1] + 1;
-                // ls[i][j] = (i - 1) * range_size + j;
-                // printf("%d ", ls[large_array][j]);
-        }
-        // printf("\n\n");
-        for (i = large_array + 1; i <= total_ss_count; i++) {
-            if ((ls[i] = (int *)malloc(sizeof(int) * (3))) == NULL) {
+
+        if (range_size > 2) {
+            for (i = 1; i < large_array; i++) {
+                if ((ls[i] = (int *)malloc(sizeof(int) * (range_size + 1))) == NULL) {
+                    fprintf(stderr, "Error!:malloc[main()->ls]\n");
+                    exit(EXIT_FAILURE);
+                }
+                ls[i][0] = range_size;
+                if(i != 1) ls[i][1] = ls[i - 1][range_size];
+                else ls[i][1] = 0;
+                // printf("%d ", ls[i][1]);
+                for (j = 2; j <= range_size; j++) {
+                    ls[i][j] = ls[i][j - 1] + 1;
+                    k = ls[i][j];
+                    // ls[i][j] = (i - 1) * range_size + j;
+                    // printf("%d ", ls[i][j]);
+                }
+                // printf("\n");
+            }
+        
+            if ((ls[large_array] = (int *)malloc(sizeof(int) * size)) == NULL) {
                 fprintf(stderr, "Error!:malloc[main()->ls]\n");
                 exit(EXIT_FAILURE);
             }
-            ls[i][0] = 2;
-        }
-        i = 0;
-        j = range_size;
-        k = large_array + 1;
-        l = range_size - 1;
-        while(i < label_max - (ls[large_array][0] - 1)) {
-            ls[k][1] = i;
-            ls[k][2] = j;
-            // printf("%d %d \n", ls[k][1], ls[k][2]);
-            k++;
-            if (j == label_max) {
-                i++;
-                j = l + 1;
-                if (i == l - 1) l += range_size - 1;
+            ls[large_array][0] = size;
+            ls[large_array][1] = k;
+            // printf("%d ", ls[large_array][1]);
+            for (j = 2; ls[large_array][j - 1] + 1 <= label_max; j++) {
+                    ls[large_array][j] = ls[large_array][j - 1] + 1;
+                    // ls[i][j] = (i - 1) * range_size + j;
+                    // printf("%d ", ls[large_array][j]);
             }
-            else j++;
+            // printf("\n\n");
+            for (i = large_array + 1; i <= total_ss_count; i++) {
+                if ((ls[i] = (int *)malloc(sizeof(int) * (3))) == NULL) {
+                    fprintf(stderr, "Error!:malloc[main()->ls]\n");
+                    exit(EXIT_FAILURE);
+                }
+                ls[i][0] = 2;
+            }
+            i = 0;
+            j = range_size;
+            k = large_array + 1;
+            l = range_size - 1;
+            while(i < label_max - (ls[large_array][0] - 1)) {
+                ls[k][1] = i;
+                ls[k][2] = j;
+                // printf("%d %d \n", ls[k][1], ls[k][2]);
+                k++;
+                if (j == label_max) {
+                    i++;
+                    j = l + 1;
+                    if (i == l - 1) l += range_size - 1;
+                }
+                else j++;
+            }
+        } else {
+
+            for (i = 1; i <= total_ss_count; i++) {
+                if ((ls[i] = (int *)malloc(sizeof(int) * (3))) == NULL) {
+                    fprintf(stderr, "Error!:malloc[main()->ls]\n");
+                    exit(EXIT_FAILURE);
+                }
+                ls[i][0] = 2;
+            }
+
+            i = 0;
+            j = 1;
+            k = large_array + 1;
+            while(i < label_max) {
+                ls[k][1] = i;
+                ls[k][2] = j;
+                // printf("%d %d \n", ls[k][1], ls[k][2]);
+                k++;
+                if (j == label_max) {
+                    i++;
+                    j = i + 1;
+                }
+                else j++;
+            }
         }
     } else {
-
-        for (i = 1; i <= total_ss_count; i++) {
-            if ((ls[i] = (int *)malloc(sizeof(int) * (3))) == NULL) {
-                fprintf(stderr, "Error!:malloc[main()->ls]\n");
-                exit(EXIT_FAILURE);
-            }
-            ls[i][0] = 2;
+        large_array = 1;
+        total_ss_count = 1;
+        if ((ls = (int **)malloc(sizeof(int*) * (total_ss_count + 1))) == NULL) {
+            fprintf(stderr, "Error!:malloc[main()->ls]\n");
+            exit(EXIT_FAILURE);
         }
 
-        i = 0;
-        j = 1;
-        k = large_array + 1;
-        while(i < label_max) {
-            ls[k][1] = i;
-            ls[k][2] = j;
-            // printf("%d %d \n", ls[k][1], ls[k][2]);
-            k++;
-            if (j == label_max) {
-                i++;
-                j = i + 1;
-            }
-            else j++;
+        if ((ls[1] = (int *)malloc(sizeof(int) * (range_size + 1))) == NULL) {
+            fprintf(stderr, "Error!:malloc[main()->ls]\n");
+            exit(EXIT_FAILURE);
         }
+        ls[1][0] = range_size;
+        for (i = 1; i <= range_size; i++) ls[1][i] = i - 1;
     }
 
-
+#if _OUTPUT_SUBMODULAR_SUBSETS_
     for (i = 1; i <= total_ss_count; i++) {
         for (j = 1; j <= ls[i][0]; j++) {
             printf("%d ", ls[i][j]);
         }
         printf("\n");
     }
+#endif
+
    
-    
-
-    
-
     printf("----------------------------------------------\n");
     printf("input_file: %s\n", argv[1]);
     printf("output_file: %s\n", output_file);
@@ -265,6 +282,13 @@ int main(int argc, char *argv[]) {
 
 #if _OUTPUT_T_
     fprintf(fp, "Energy (before): %lf\n", prev_energy);
+    fprintf(fp, "position :\n");
+    for (i = 1; i <= Ge.n - 2; i++) {
+        // printf("t[%d] : %d\n", i, t[i]);
+        fprintf(fp, "%d ", i);
+        if(i % image.width == 0) fprintf(fp, "\n");
+        if(i % (grids_node) == 0) fprintf(fp, "-------------------------------------\n");
+    }
     fprintf(fp, "init_label:\n");
     for (i = 1; i <= Ge.n - 2; i++) {
         // printf("t[%d] : %d\n", i, t[i]);
@@ -275,18 +299,12 @@ int main(int argc, char *argv[]) {
 
 #endif
 
-    
-
     last_move = total_ss_count + 1;
     decreace = 0;
     flag = 0;
     ci = 0;
     start = clock();
-    printf("init:\n");
-    for (j = 1; j <= Ge.n - 2; j++) {
-        printf("%d ",label[j]);
-    }
-    printf("\n");
+
     do {
         prev_energy = energy(&Ge, label, I, T);
         for(i = 1; i <= total_ss_count; i++) {
@@ -295,33 +313,21 @@ int main(int argc, char *argv[]) {
                 break;
             }
             
-            printf("subsets :\n");
-            for (j = 1; j <= ls[i][0]; j++) {
-                printf("%d ", ls[i][j]);
-            }
-            printf("\n");
-
-            // for (j = 1; j <= Ge.n - 2; j++) {
-            //     if (list_isin_array(ls[i], label[j])) {
-            //         printf("%d (%d)is in\n", j, label[j]);
-            //     }
-            // }
-
-
 #if _OUTPUT_T_
             fprintf(fp, "\n-------------------------------------\n");
-            fprintf(fp, " submodular subsets: ");
-            for (j = 1; j <= ls[i][0]; i++) {
-                printf("%d ", ls[i][j]);
+            fprintf(fp, "submodular subsets: ");
+            for (j = 1; j <= ls[i][0]; j++) {
+                fprintf(fp, "%d ", ls[i][j]);
             }
-            printf("\n");
+            fprintf(fp, "\n");
             
             for (j = 1; j <= Ge.n - 2; j++) {
                 // printf("t[%d] : %d\n", i, t[i]);
-                fprintf(fp, "%d ", isin_array(label_index, j, swap_node_size) ? 1 : 0);
+                fprintf(fp, "%d ", isin_array(ls[i], label[j]) ? 1 : 0);
                 if(j % image.width == 0) fprintf(fp, "\n");
                 if(j % (grids_node) == 0) fprintf(fp, "-------------------------------------\n");
             }
+            
             fprintf(fp, "label: \n");
             for (j = 1; j <= Ge.n - 2; j++) {
                 // printf("t[%d] : %d\n", i, t[i]);
@@ -334,16 +340,11 @@ int main(int argc, char *argv[]) {
             
             node = image.height * image.width * ls[i][0] + 2;
             grids_edge = (image.height - 1) * image.width + image.height * (image.width - 1);
-            // edge =  2 * ((ls[i][0] - 1) * ((ls[i][0] - 1) * grids_edge + 2 * grids_node) + grids_node * ((ls[i][0] - 1) - 1));
             edge = 2 * grids_node * ls[i][0] + 2 * grids_edge * (ls[i][0] - 1) * ((ls[i][0] - 1)); 
-            // printf("%d %d\n",  2 * grids_node * (ls[i][0] + 1), 2 * grids_edge * (ls[i][0] - 1) * ((ls[i][0] - 1)));
+
             newGraph(&G, node, edge);
-            printf("edge : %d\n", edge);
-            // set_edge(&G, image.height, image.width, alpha, beta, label_size, label, label_index, swap_node_size, I, T);
-            set_edge_for_grsa(&G, image.height, image.width, ls[i], label, I, T);
-            // showGraph(&G);
+            set_edge(&G, image.height, image.width, ls[i], label, I, T);
             initAdjList(&G);
-            // exit(EXIT_SUCCESS);
             
             if ((f = (double *) malloc(sizeof(double) * (G.m + 1))) == NULL) {
                 fprintf(stderr, "main(): ERROR [f = malloc()]\n");
@@ -360,7 +361,7 @@ int main(int argc, char *argv[]) {
             ci++;
             
             for (j = 1; j <= Ge.n - 2; j++) {
-                if (list_isin_array(ls[i], label[j])) {
+                if (isin_array(ls[i], label[j])) {
                     k = j;
                     count = 0;
                     while (t[k] == 1 && k <= ls[i][0] * grids_node) {
@@ -371,19 +372,12 @@ int main(int argc, char *argv[]) {
                 } else newlabel[j] = label[j];
             }
 
-            printf("%lf --> %lf \n", energy(&Ge, label, I, T), energy(&Ge, newlabel, I, T));
             if (energy(&Ge, newlabel, I, T) < energy(&Ge, label, I, T)) {
                 last_move = i;
                 cpyarray(label, newlabel, grids_node);
 
-#if _SHOW_EACH_ENERGY_
-                    printf("alpha: %d beta: %d\n", alpha, beta);
-                    printf("Energy : %lf\n", energy(&Ge, label, I, T));
-#endif
-
             } else if (energy(&Ge, newlabel, I, T) > energy(&Ge, label, I, T)) {
                 errlog = 1;
-                // printf("error!\n");
             }
 
 #if _OUTPUT_T_
@@ -459,8 +453,11 @@ int main(int argc, char *argv[]) {
     fprintf(fp, "Energy (after): %lf\n", energy(&Ge, label, I, T));
     fclose(fp);
 #endif
+
     if(errlog) printf("エネルギーが増大する移動が確認されました\n");
     
+
+    // free meory
     delGraph(&Ge);
     for (i = 0; i <= total_ss_count; i++) {
         free(ls[i]);
