@@ -19,6 +19,17 @@ double fmin(double i, double j) {
     return i < j ? i : j;
 }
 
+double fmax(double i, double j) {
+    return i > j ? i : j;
+}
+double theta(double n, double T) {
+
+    if(!function) return fmin(n > 0 ? n : -n, T);
+    else return fmin(n * n, T);
+    // return fmin(n >= 0 ? n : -n, fmax(n >= 0 ? n - 5 : -n - 5, T));
+
+}
+
 // リスト内にtargetが存在 1
 int isin_array(int *ls, int target) {
     for (int i = 1; i <= ls[0]; i++) {
@@ -26,6 +37,16 @@ int isin_array(int *ls, int target) {
         if (ls[i] == target) return 1;
     }
     return 0;
+}
+
+int is_convex(int i, int j, double T) {
+    if (theta(j, T) - theta(j - 1, T) >= (theta(j - 1, T) - theta(i, T)) / (j - 1 - i) &&
+        i * (theta(i + 1, T) - theta(i, T)) >= theta(i, T) - theta(0, T) && 
+        theta(i, T) - theta(0, T) >= 0) {
+            return 1;
+        }
+
+    else return 0;
 }
 
 
@@ -41,12 +62,7 @@ int cmparray(int *array1, int *array2, int size) {
 }
 
 
-double theta(double n, double T) {
 
-    if(!function) return fmin(n > 0 ? n : -n, T);
-    else return fmin(n * n, T);
-
-}
 
 
 void cpyarray(int *terget, int *source, int size) {

@@ -1,0 +1,5 @@
+@zurvlk 処理12が完了しましたっ!
+Vpq(fp,fq) = (fp - fq)^2
+label_size: 64 range_size: 64
+Energy (before): 1061044
+Energy (after): 51448

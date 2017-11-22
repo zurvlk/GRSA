@@ -6,9 +6,9 @@ result=log/`date +%Y%m%d_%H-%M-%S`.log
 input_file="input/barbara_noise32.bmp"
 for func in 1
 do
-    for label_size in 4 16 32 64
+    for label_size in 16 32 64
     do
-        for range_size in 8 16 32 64
+        for range_size in  4 8 16 32 64
         do
             if [ $range_size -le $label_size ]
             then

@@ -25,9 +25,10 @@
 
 
 int main(int argc, char *argv[]) {
-    int i, j, k, l, node, edge, grids_node, flag, size;
+    int i, j, k, l, node, edge, grids_node, flag, size, ccvex, prev;
     int scale, label_max, grids_edge, count, last_move, ci;
     int *I, *t, *label, *newlabel, *label_index;
+    int convex[10][2];
     // I->入力画像の輝度, t->2値変数, label->ラベル付け
     int label_size = 16;
     int range_size = 4;
@@ -91,7 +92,50 @@ int main(int argc, char *argv[]) {
     }
 
     T = theta(range_size, INF);
+    // T = range_size;
 
+    
+    // ccvex 凸区間の数(count of convex)
+    ccvex = 0;
+
+    // for (i = 0; i < label_size; i++) {
+    //     printf("%lf ", theta(i ,T));
+    // }
+    // printf("\n");
+
+    i = 0;
+    j = 1;
+    while (j < label_size) {
+        j++;
+
+        // printf("i: %d, j: %d isc: %f %f\n", i, j, theta(j, T) - theta(j - 1, T) , (theta(j - 1, T) - theta(i, T)) / (j - 1 - i));
+        if (j > 1  && is_convex(i, j, T)) {
+            prev = 1;
+            if (j == label_size) {
+                convex[ccvex][0] = i;
+                convex[ccvex][1] = j - 1;
+                ccvex++;
+            }
+            // printf("%d - > %d\n", i, j);
+        } else if (i != j - 1 && prev) {
+            // printf("%d %d\n", i, j);
+            convex[ccvex][0] = i;
+            convex[ccvex][1] = j - 1;
+            i = j - 1;
+            ccvex++;
+            prev = 0;
+        } else {
+            i = j - 1;
+            prev = 0;
+        }
+        if (ccvex > 9) break;
+        
+    }
+    for (i = 0; i < ccvex; i++) {
+        printf("T : %.0lf 候補区間: %d --> %d\n", T, convex[i][0], convex[i][1]);
+    }
+
+    // exit(EXIT_SUCCESS);
     // generate submodular subsets
     // ls[i][0] == 劣モジュラ部分集合iの要素数
     // ls[i][1] ~ ls[i][range_size] 劣モジュラ部分集合
@@ -125,29 +169,25 @@ int main(int argc, char *argv[]) {
                 ls[i][0] = range_size;
                 if(i != 1) ls[i][1] = ls[i - 1][range_size];
                 else ls[i][1] = 0;
-                // printf("%d ", ls[i][1]);
+
                 for (j = 2; j <= range_size; j++) {
                     ls[i][j] = ls[i][j - 1] + 1;
                     k = ls[i][j];
-                    // ls[i][j] = (i - 1) * range_size + j;
-                    // printf("%d ", ls[i][j]);
                 }
-                // printf("\n");
             }
         
             if ((ls[large_array] = (int *)malloc(sizeof(int) * size)) == NULL) {
                 fprintf(stderr, "Error!:malloc[main()->ls]\n");
                 exit(EXIT_FAILURE);
             }
+            
             ls[large_array][0] = size;
             ls[large_array][1] = k;
-            // printf("%d ", ls[large_array][1]);
+
             for (j = 2; ls[large_array][j - 1] + 1 <= label_max; j++) {
                     ls[large_array][j] = ls[large_array][j - 1] + 1;
-                    // ls[i][j] = (i - 1) * range_size + j;
-                    // printf("%d ", ls[large_array][j]);
             }
-            // printf("\n\n");
+
             for (i = large_array + 1; i <= total_ss_count; i++) {
                 if ((ls[i] = (int *)malloc(sizeof(int) * (3))) == NULL) {
                     fprintf(stderr, "Error!:malloc[main()->ls]\n");

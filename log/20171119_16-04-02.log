@@ -1,0 +1,26 @@
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_16_8.bmp
+label_size: 16
+range_size: 8
+T: 64.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 67642
+Energy (after): 11547
+Italation: 198
+Run time[7.32]
+----------------------------------------------
+----------------------------------------------
+input_file: input/barbara_noise32.bmp
+output_file: output/output_1_16_16.bmp
+label_size: 16
+range_size: 16
+T: 256.00
+Vpq(fp, fq) = (fp - fq)^2
+height 100, width 75
+Energy (before): 68379
+Energy (after): 11521
+Italation: 1
+Run time[2.83]
+----------------------------------------------
